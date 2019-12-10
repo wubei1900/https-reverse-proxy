@@ -1,0 +1,20 @@
+variables:
+  CONTAINER_TEST_IMAGE: registry.gitlab.test.com/$CI_PROJECT_PATH:$CI_BUILD_REF_NAME
+  CONTAINER_RELEASE_IMAGE: registry.gitlab.test.com/$CI_PROJECT_PATH:latest
+
+stages:
+  - release
+
+release:
+  stage: release
+  script:
+    - command -v docker || { sudo apt-get update; sudo apt-get install docker.io; }
+    - sudo docker login -u gitlab-ci-token -e test@email.com -p $CI_BUILD_TOKEN registry.gitlab.test.com
+    - sudo docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - sudo docker push $CONTAINER_TEST_IMAGE
+  only:
+    - master
+    - develop
+  tags:
+    - shell
+
